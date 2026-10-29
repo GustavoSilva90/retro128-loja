@@ -4,7 +4,7 @@
   "ambiente": "producao",
   "moeda": "BRL",
   "catalogoUrl": "data/catalogo.json",
-  "pastaCapas": "assets/capas/",
+  "pastaCapas": "img/capas/",
   "freteGratisAcima": 199.90,
   "blackFriday": {
     "ativa": true,

@@ -1,9 +1,5 @@
 /*
  * contador.js — contador regressivo da campanha Black Friday
- *
- * Desenvolvido na sprint 14. Fica desligado até a campanha ser ativada
- * (ver RET-203). O time de analytics usa historicoContador para medir
- * o que estava visível na vitrine durante a contagem.
  */
 
 const historicoContador = [];
@@ -21,7 +17,6 @@ function formatarTempo(ms) {
 function iniciarContador(campanha) {
   const banner = document.getElementById('banner-bf');
   const alvo = banner.querySelector('.bf-tempo');
-  const vitrine = document.getElementById('vitrine');
   const fim = new Date(campanha.fim).getTime();
   banner.hidden = false;
 
@@ -29,19 +24,27 @@ function iniciarContador(campanha) {
 
   function tick() {
     const restante = Math.max(0, fim - Date.now());
+    
+    // Limita o histórico a 50 registos para evitar estouro de memória
+    if (historicoContador.length >= 50) {
+      historicoContador.shift();
+    }
+    
     historicoContador.push({
       instante: Date.now(),
-      restante: restante,
-      jogos: JOGOS.map((jogo) => ({ ...jogo })),
-      vitrine: vitrine.cloneNode(true)
+      restante: restante
     });
+    
     Observabilidade.contar('contador_ticks');
     alvo.innerHTML = formatarTempo(restante);
   }
 
   tick();
   Observabilidade.info('CONTADOR_INICIADO', 'Contador da Black Friday ativo', {
-    fim: campanha.fim, intervalo: campanha.intervaloContadorSegundos
+    fim: campanha.fim, intervalo: 1000
   });
-  return setInterval(tick, campanha.intervaloContadorSegundos);
+  
+  // Converte segundos em milissegundos (multiplica por 1000)
+  const intervaloMs = (campanha.intervaloContadorSegundos || 1) * 1000;
+  return setInterval(tick, intervaloMs);
 }
